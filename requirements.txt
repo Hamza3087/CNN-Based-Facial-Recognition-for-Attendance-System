@@ -1,0 +1,9 @@
+numpy
+opencv-python
+tensorflow
+keras
+flask
+scikit-learn
+matplotlib
+Pillow
+face-recognition
