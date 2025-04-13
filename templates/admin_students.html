@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management - Face Recognition Attendance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .student-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: block;
+            border: 3px solid #f8f9fa;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .student-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .modal-confirm {
+            color: #636363;
+        }
+        
+        .modal-confirm .modal-content {
+            padding: 20px;
+            border-radius: 5px;
+            border: none;
+        }
+        
+        .modal-confirm .modal-header {
+            border-bottom: none;   
+            position: relative;
+        }
+        
+        .modal-confirm h4 {
+            text-align: center;
+            font-size: 26px;
+            margin: 30px 0 -15px;
+        }
+        
+        .modal-confirm .form-control, .modal-confirm .btn {
+            min-height: 40px;
+            border-radius: 3px; 
+        }
+        
+        .modal-confirm .close {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        
+        .modal-confirm .modal-footer {
+            border: none;
+            text-align: center;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+        
+        .modal-confirm .icon-box {
+            color: #fff;
+            position: absolute;
+            margin: 0 auto;
+            left: 0;
+            right: 0;
+            top: -70px;
+            width: 95px;
+            height: 95px;
+            border-radius: 50%;
+            z-index: 9;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-confirm .icon-box i {
+            font-size: 58px;
+            position: relative;
+            top: 3px;
+        }
+        
+        .modal-confirm.modal-dialog {
+            margin-top: 80px;
+        }
+        
+        .modal-confirm .btn {
+            color: #fff;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.4s;
+            line-height: normal;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin/dashboard">Admin Panel</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/students">Students</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/attendance">Attendance</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/reports">Reports</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/logout">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Student Management</h2>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                <i class="bi bi-person-plus"></i> Add New Student
+            </button>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search students...">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" id="exportBtn">
+                        <i class="bi bi-download"></i> Export List
+                    </button>
+                    <button type="button" class="btn btn-outline-success" id="importBtn">
+                        <i class="bi bi-upload"></i> Import Students
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row" id="studentsList">
+            {% for student in students %}
+            <div class="col-md-4 mb-4">
+                <div class="card student-card">
+                    <div class="card-body text-center">
+                        <img src="/static/student_faces/{{ student[0] }}.jpg" alt="Student" class="profile-img" onerror="this.src='/static/default_avatar.png'">
+                        <h5 class="card-title">{{ student[1] }}</h5>
+                        <p class="card-text">ID: {{ student[0] }}</p>
+                        <p class="card-text"><small class="text-muted">
+                            {% if student[2] %}{{ student[2] }}{% else %}No additional info{% endif %}
+                        </small></p>
+                        
+                        <div class="student-actions mt-3">
+                            <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editStudentModal" 
+                                    data-id="{{ student[0] }}" data-name="{{ student[1] }}" data-info="{{ student[2] }}">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#captureModal" data-id="{{ student[0] }}">
+                                <i class="bi bi-camera"></i> Capture
+                            </button>
+                            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" data-id="{{ student[0] }}">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if not students %}
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle-fill me-2"></i> No students found. Click "Add New Student" to add one.
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Add Student Modal -->
+    <div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Add New Student</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="addStudentForm" action="/admin/add_student" method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="studentId" class="form-label">Student ID</label>
+                            <input type="text" class="form-control" id="studentId" name="student_id" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="studentName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentInfo" class="form-label">Additional Information</label>
+                            <textarea class="form-control" id="studentInfo" name="info" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentPhoto" class="form-label">Upload Photo</label>
+                            <input type="file" class="form-control" id="studentPhoto" name="photo" accept="image/*">
+                            <div class="form-text">Upload a clear front-facing photo for better face recognition.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Student Modal -->
+    <div class="modal fade" id="editStudentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Edit Student</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editStudentForm" action="/admin/edit_student" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" id="editStudentId" name="student_id">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="editStudentName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="editStudentName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStudentInfo" class="form-label">Additional Information</label>
+                            <textarea class="form-control" id="editStudentInfo" name="info" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStudentPhoto" class="form-label">Update Photo</label>
+                            <input type="file" class="form-control" id="editStudentPhoto" name="photo" accept="image/*">
+                            <div class="form-text">Leave blank to keep the current photo.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-info">Update Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="icon-box bg-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <h4 class="modal-title">Are you sure?</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="text-center">Do you really want to delete this student? This process cannot be undone and all attendance records for this student will be permanently removed.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteStudentForm" action="/admin/delete_student" method="POST">
+                        <input type="hidden" id="deleteStudentId" name="student_id">
+                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Capture Face Modal -->
+    <div class="modal fade" id="captureModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Capture Face</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <p>Position the student's face in the center of the frame and ensure good lighting.</p>
+                    </div>
+                    <div class="video-container mx-auto" style="max-width: 500px;">
+                        <video id="captureVideo" autoplay style="width: 100%; border-radius: 8px;"></video>
+                        <canvas id="captureCanvas" style="display: none;"></canvas>
+                    </div>
+                    <div class="text-center mt-3" id="captureStatus"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="captureFaceBtn">Capture</button>
+                    <button type="button" class="btn btn-primary" id="saveFaceBtn" style="display: none;">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Edit student modal
+        const editStudentModal = document.getElementById('editStudentModal');
+        editStudentModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const studentId = button.getAttribute('data-id');
+            const studentName = button.getAttribute('data-name');
+            const studentInfo = button.getAttribute('data-info');
+            
+            document.getElementById('editStudentId').value = studentId;
+            document.getElementById('editStudentName').value = studentName;
+            document.getElementById('editStudentInfo').value = studentInfo || '';
+        });
+        
+        // Delete student modal
+        const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+        deleteConfirmModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const studentId = button.getAttribute('data-id');
+            document.getElementById('deleteStudentId').value = studentId;
+        });
+        
+        // Capture face modal
+        const captureModal = document.getElementById('captureModal');
+        let captureStream = null;
+        
+        captureModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const studentId = button.getAttribute('data-id');
+            
+            // Store student ID in the modal
+            captureModal.setAttribute('data-student-id', studentId);
+            
+            // Start the camera
+            startCaptureCamera();
+            
+            // Reset UI
+            document.getElementById('captureFaceBtn').style.display = 'block';
+            document.getElementById('saveFaceBtn').style.display = 'none';
+            document.getElementById('captureStatus').innerHTML = '';
+        });
+        
+        captureModal.addEventListener('hidden.bs.modal', function () {
+            // Stop the camera when the modal is closed
+            if (captureStream) {
+                captureStream.getTracks().forEach(track => track.stop());
+                captureStream = null;
+            }
+        });
+        
+        async function startCaptureCamera() {
+            const video = document.getElementById('captureVideo');
+            try {
+                captureStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = captureStream;
+            } catch (error) {
+                console.error('Error accessing the camera:', error);
+                document.getElementById('captureStatus').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Camera access denied. Please allow camera access.
+                    </div>
+                `;
+            }
+        }
+        
+        document.getElementById('captureFaceBtn').addEventListener('click', function() {
+            const video = document.getElementById('captureVideo');
+            const canvas = document.getElementById('captureCanvas');
+            const context = canvas.getContext('2d');
+            
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw the video frame to the canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Show captured image
+            video.style.display = 'none';
+            canvas.style.display = 'block';
+            
+            // Update buttons
+            document.getElementById('captureFaceBtn').style.display = 'none';
+            document.getElementById('saveFaceBtn').style.display = 'block';
+            
+            document.getElementById('captureStatus').innerHTML = `
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    Image captured. Click "Save" to store this image or close to try again.
+                </div>
+            `;
+        });
+        
+        document.getElementById('saveFaceBtn').addEventListener('click', function() {
+            const canvas = document.getElementById('captureCanvas');
+            const studentId = captureModal.getAttribute('data-student-id');
+            
+            // Get the image data
+            const imageData = canvas.toDataURL('image/jpeg');
+            
+            // Send to server
+            fetch('/admin/save_face', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `student_id=${studentId}&image_data=${encodeURIComponent(imageData)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('captureStatus').innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            Face image saved successfully!
+                        </div>
+                    `;
+                    // Close modal after a delay
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(captureModal);
+                        modal.hide();
+                    }, 1500);
+                } else {
+                    document.getElementById('captureStatus').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Error: ${data.error}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('captureStatus').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        An error occurred. Please try again.
+                    </div>
+                `;
+            });
+        });
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            const studentCards = document.querySelectorAll('.student-card');
+            
+            studentCards.forEach(card => {
+                const studentName = card.querySelector('.card-title').textContent.toLowerCase();
+                const studentId = card.querySelector('.card-text').textContent.toLowerCase();
+                const cardContainer = card.parentElement;
+                
+                if (studentName.includes(searchValue) || studentId.includes(searchValue)) {
+                    cardContainer.style.display = '';
+                } else {
+                    cardContainer.style.display = 'none';
+                }
+            });
+        });
+        
+        // Export functionality
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            window.location.href = '/admin/export_students';
+        });
+    </script>
+</body>
+</html>

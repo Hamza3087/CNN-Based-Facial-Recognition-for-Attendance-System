@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f9fafb; color: #1f2937; line-height: 1.6; display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+    <div style="width: 100%; max-width: 400px; background-color: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); padding: 30px; margin: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #2563eb; font-size: 28px; margin: 0 0 10px 0; font-weight: 600;">Admin Login</h2>
+            <p style="color: #6b7280; margin: 0;">Enter your credentials to access the dashboard</p>
+        </div>
+        
+        <form method="POST" style="margin-top: 20px;">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">
+                    <i class="fas fa-user" style="margin-right: 8px; color: #6b7280;"></i>Username:
+                </label>
+                <input type="text" name="username" required style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 16px; box-sizing: border-box; transition: border-color 0.3s ease;">
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">
+                    <i class="fas fa-lock" style="margin-right: 8px; color: #6b7280;"></i>Password:
+                </label>
+                <input type="password" name="password" required style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 16px; box-sizing: border-box; transition: border-color 0.3s ease;">
+            </div>
+            
+            <div style="text-align: center;">
+                <button type="submit" style="background-color: #2563eb; color: white; border: none; padding: 12px 24px; width: 100%; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background-color 0.3s ease; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Login
+                </button>
+            </div>
+        </form>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/" style="display: inline-block; text-decoration: none; color: #6b7280; font-size: 14px; transition: color 0.3s ease;">
+                <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>Back to Home
+            </a>
+        </div>
+    </div>
+</body>
+</html>

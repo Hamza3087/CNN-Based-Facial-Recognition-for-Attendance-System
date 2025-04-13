@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f9fafb; color: #1f2937; line-height: 1.6;">
+    <header style="background-color: #2563eb; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <h2 style="margin: 0; font-size: 24px; font-weight: 600;">Admin Dashboard</h2>
+        <a href="/logout" style="color: white; text-decoration: none; display: flex; align-items: center; font-weight: 500; padding: 8px 16px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; transition: all 0.3s ease;">
+            <i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i>Logout
+        </a>
+    </header>
+    
+    <div style="max-width: 1200px; margin: 30px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: #374151; font-size: 22px; margin: 0; font-weight: 600;">Attendance Records</h2>
+            <div style="display: flex; gap: 10px;">
+                <button style="background-color: #10b981; color: white; border: none; padding: 8px 16px; font-size: 14px; border-radius: 4px; cursor: pointer; display: flex; align-items: center;">
+                    <i class="fas fa-file-export" style="margin-right: 8px;"></i>Export
+                </button>
+                <button style="background-color: #6b7280; color: white; border: none; padding: 8px 16px; font-size: 14px; border-radius: 4px; cursor: pointer; display: flex; align-items: center;">
+                    <i class="fas fa-print" style="margin-right: 8px;"></i>Print
+                </button>
+            </div>
+        </div>
+        
+        <div style="overflow-x: auto; margin-top: 20px;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 15px;">
+                <thead>
+                    <tr style="background-color: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+                        <th style="padding: 12px 16px; color: #374151; font-weight: 600; white-space: nowrap;">ID</th>
+                        <th style="padding: 12px 16px; color: #374151; font-weight: 600; white-space: nowrap;">Roll Number</th>
+                        <th style="padding: 12px 16px; color: #374151; font-weight: 600; white-space: nowrap;">Timestamp</th>
+                        <th style="padding: 12px 16px; color: #374151; font-weight: 600; white-space: nowrap;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in records %}
+                    <tr style="border-bottom: 1px solid #e5e7eb; transition: background-color 0.3s ease;">
+                        <td style="padding: 12px 16px;">{{ row[0] }}</td>
+                        <td style="padding: 12px 16px;">{{ row[1] }}</td>
+                        <td style="padding: 12px 16px;">{{ row[2] }}</td>
+                        <td style="padding: 12px 16px;">
+                            <span style="display: inline-block; padding: 4px 8px; background-color: #dcfce7; color: #166534; border-radius: 4px; font-size: 12px; font-weight: 500;">Present</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="color: #6b7280; font-size: 14px;">
+                Showing <span style="font-weight: 500;">{{ records|length }}</span> entries
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button style="background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db; padding: 6px 12px; font-size: 14px; border-radius: 4px; cursor: pointer;">Previous</button>
+                <button style="background-color: #2563eb; color: white; border: none; padding: 6px 12px; font-size: 14px; border-radius: 4px; cursor: pointer;">1</button>
+                <button style="background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db; padding: 6px 12px; font-size: 14px; border-radius: 4px; cursor: pointer;">Next</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer style="text-align: center; padding: 20px; color: #6b7280; font-size: 14px; border-top: 1px solid #e5e7eb; margin-top: 40px;">
+        <p style="margin: 0;">© 2023 Face Recognition Attendance System. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+
